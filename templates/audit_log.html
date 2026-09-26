@@ -1,0 +1,7 @@
+<h2>Audit Log</h2>
+<table border="1">
+<tr><th>User ID</th><th>Action</th><th>Document</th><th>Case</th><th>Time</th></tr>
+{% for log in logs %}
+<tr><td>{{ log.user_id }}</td><td>{{ log.action }}</td><td>{{ log.document_id }}</td><td>{{ log.case_id }}</td><td>{{ log.timestamp }}</td></tr>
+{% endfor %}
+</table>

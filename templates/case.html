@@ -1,0 +1,17 @@
+<h2>{{ case.case_title }}</h2>
+<a href="{{ url_for('upload_document', case_id=case.id) }}">+ Upload Document</a>
+<ul>
+{% for doc in documents %}
+    <li>
+        {% if doc.is_redacted %}
+            [REDACTED - Sensitive Content Hidden]
+        {% else %}
+            {{ doc.title }} ({{ doc.document_type }})
+        {% endif %}
+        — <a href="{{ url_for('view_versions', doc_id=doc.id) }}">Versions</a> | 
+        <a href="{{ url_for('new_version', doc_id=doc.id) }}">Upload New Version</a> |
+        <a href="{{ url_for('toggle_redact', doc_id=doc.id) }}">Toggle Redaction</a>
+    </li>
+{% endfor %}
+</ul>
+<a href="{{ url_for('dashboard') }}">Back to Dashboard</a>

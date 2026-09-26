@@ -1,3 +1,4 @@
+
 <head>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
@@ -11,12 +12,11 @@
     <button type="submit">Login</button>
 </form>
 </body>
-
-{% if error %}
-<p style="color:red;">{{ error }}</p>
-{% endif %}
-<form method="POST">
-    <input type="email" name="email" placeholder="Email" required>
-    <input type="password" name="password" placeholder="Password" required>
-    <button type="submit">Login</button>
-</form>
+<h2>Welcome, {{ name }} ({{ role }})</h2>
+<a href="{{ url_for('new_case') }}">+ New Case</a> | <a href="{{ url_for('search') }}">Search</a> | <a href="{{ url_for('logout') }}">Logout</a>
+<h3>Cases</h3>
+<ul>
+{% for case in cases %}
+    <li><a href="{{ url_for('view_case', case_id=case.id) }}">{{ case.case_title }} ({{ case.case_number }})</a></li>
+{% endfor %}
+</ul>

@@ -1,0 +1,6 @@
+<h2>Versions of {{ doc.title }}</h2>
+<ul>
+{% for v in versions %}
+    <li>Version {{ v.version_number }} — uploaded {{ v.uploaded_at }} — Hash: {{ v.file_hash[:16] }}...</li>
+{% endfor %}
+</ul>
