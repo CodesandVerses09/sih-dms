@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask, render_template, redirect, url_for, request
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from models import db, User, Case, Document, Version, AuditLog
@@ -168,4 +170,7 @@ def logout():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.run(debug=True)
+    app.run(host= '0.0.0.0', port=int(os.environ.get('PORT', 5000)))
+    if __name__ == '__main__':
+        port = int(os.environ.get('PORT', 5000))
+        app.run(host='0.0.0.0', port=port)
