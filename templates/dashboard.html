@@ -1,22 +1,19 @@
-
 <head>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
-{% if error %}
-<p style="color:red;">{{ error }}</p>
-{% endif %}
-<form method="POST">
-    <input type="email" name="email" placeholder="Email" required>
-    <input type="password" name="password" placeholder="Password" required>
-    <button type="submit">Login</button>
-</form>
+<body style="background:#0d1b2a; color:white; padding:30px;">
+<div class="container">
+    <h2>Welcome, {{ name }} ({{ role }})</h2>
+    <a href="{{ url_for('new_case') }}" class="btn btn-outline-light btn-sm">+ New Case</a>
+    <a href="{{ url_for('search') }}" class="btn btn-outline-light btn-sm">Search</a>
+    <a href="{{ url_for('logout') }}" class="btn btn-outline-danger btn-sm">Logout</a>
+    <h4 class="mt-4">Cases</h4>
+    <ul class="list-group">
+    {% for case in cases %}
+        <li class="list-group-item bg-dark text-white">
+            <a href="{{ url_for('view_case', case_id=case.id) }}" class="text-info">{{ case.case_title }} ({{ case.case_number }})</a>
+        </li>
+    {% endfor %}
+    </ul>
+</div>
 </body>
-<h2>Welcome, {{ name }} ({{ role }})</h2>
-<a href="{{ url_for('new_case') }}">+ New Case</a> | <a href="{{ url_for('search') }}">Search</a> | <a href="{{ url_for('logout') }}">Logout</a>
-<h3>Cases</h3>
-<ul>
-{% for case in cases %}
-    <li><a href="{{ url_for('view_case', case_id=case.id) }}">{{ case.case_title }} ({{ case.case_number }})</a></li>
-{% endfor %}
-</ul>

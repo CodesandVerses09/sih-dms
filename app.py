@@ -149,6 +149,16 @@ def admin_panel():
         return "Access Denied: Admins only", 403
     return "Welcome to the Admin Panel"
 
+@app.route('/document/<int:doc_id>/toggle-redact')
+@login_required
+def toggle_redact(doc_id):
+    doc = Document.query.get_or_404(doc_id)
+    if current_user.role == 'Admin':
+        doc.is_redacted = not doc.is_redacted
+        db.session.commit()
+        log_action('REDACT_TOGGLE', document_id=doc_id, case_id=doc.case_id)
+    return redirect(url_for('view_case', case_id=doc.case_id))
+
 @app.route('/logout')
 @login_required
 def logout():
@@ -159,13 +169,3 @@ if __name__ == '__main__':
     with app.app_context():
         db.create_all()
     app.run(debug=True)
-
-    @app.route('/document/<int:doc_id>/toggle-redact')
-@login_required
-def toggle_redact(doc_id):
-    doc = Document.query.get_or_404(doc_id)
-    if current_user.role == 'Admin':
-        doc.is_redacted = not doc.is_redacted
-        db.session.commit()
-        log_action('REDACT_TOGGLE', document_id=doc_id, case_id=doc.case_id)
-    return redirect(url_for('view_case', case_id=doc.case_id))
