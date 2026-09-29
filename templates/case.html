@@ -1,66 +1,24 @@
-{% extends "base.html" %}
-
-{% block content %}
-<div class="container mt-4">
-    <h2 class="text-light mb-4">Case Details</h2>
-
-    <div class="mb-3">
-        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary btn-sm">← Back to Dashboard</a>
-    </div>
-
-    {% if case and case.documents %}
-        {% for doc in case.documents %}
-            <div class="card bg-dark text-white mb-3 p-3 border border-secondary">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        {% if doc.is_redacted %}
-                            <span class="badge bg-danger p-2" style="cursor: pointer;" onclick="toggleDocDetails('{{ doc.id }}')">
-                                [REDACTED] 🔒 <small class="text-light ms-1">(Click to view original name)</small>
-                            </span>
-                        {% else %}
-                            <span class="fs-5">{{ doc.title }}</span>
-                        {% endif %}
-                    </div>
-
-                    <div>
-                        <button type="button" class="btn btn-outline-info btn-sm me-1" onclick="toggleDocDetails('{{ doc.id }}')">Versions</button>
-                        <a href="{{ url_for('toggle_redact', doc_id=doc.id) }}" class="btn btn-danger btn-sm">Toggle Redaction</a>
-                    </div>
-                </div>
-
-                <!-- Hidden panel for original file name and version hashes -->
-                <div id="details-{{ doc.id }}" class="mt-3 p-3 bg-secondary rounded d-none">
-                    <p class="mb-1 text-warning">
-                        <strong>Original File Name:</strong> <span class="text-white">{{ doc.title }}</span>
-                    </p>
-                    <p class="mb-1 text-warning">
-                        <strong>Versions & Hashes:</strong>
-                    </p>
-                    {% if doc.versions %}
-                        <ul class="list-group list-group-flush">
-                            {% for v in doc.versions %}
-                                <li class="list-group-item bg-dark text-light border-secondary p-1 small">
-                                    Version {{ loop.index }}: <code>{{ v.file_hash if v.file_hash else 'No Hash' }}</code>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    {% else %}
-                        <p class="small text-light mb-0">No versions available.</p>
-                    {% endif %}
-                </div>
-            </div>
-        {% endfor %}
-    {% else %}
-        <div class="alert alert-info">No documents found for this case.</div>
-    {% endif %}
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body style="background:#0d1b2a; color:white; padding:30px;">
+<div class="container">
+    <h2>{{ case.case_title }}</h2>
+    <a href="{{ url_for('upload_document', case_id=case.id) }}" class="btn btn-success btn-sm mb-3">+ Upload Document</a>
+    <ul class="list-group">
+    {% for doc in documents %}
+        <li class="list-group-item bg-dark text-white">
+            {% if doc.is_redacted %}
+                <span class="badge bg-danger">[REDACTED]</span>
+            {% else %}
+                {{ doc.title }} ({{ doc.document_type }})
+            {% endif %}
+            <a href="{{ url_for('view_versions', doc_id=doc.id) }}" class="btn btn-sm btn-outline-info">Versions</a>
+            <a href="{{ url_for('new_version', doc_id=doc.id) }}" class="btn btn-sm btn-outline-warning">New Version</a>
+            <a href="{{ url_for('toggle_redact', doc_id=doc.id) }}" class="btn btn-sm btn-outline-danger">Toggle Redaction</a>
+        </li>
+    {% endfor %}
+    </ul>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary mt-3">Back to Dashboard</a>
 </div>
-
-<script>
-function toggleDocDetails(docId) {
-    const el = document.getElementById('details-' + docId);
-    if (el) {
-        el.classList.toggle('d-none');
-    }
-}
-</script>
-{% endblock %}
+</body>
