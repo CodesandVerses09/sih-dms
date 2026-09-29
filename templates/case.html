@@ -1,24 +1,40 @@
-<head>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body style="background:#0d1b2a; color:white; padding:30px;">
-<div class="container">
-    <h2>{{ case.case_title }}</h2>
-    <a href="{{ url_for('upload_document', case_id=case.id) }}" class="btn btn-success btn-sm mb-3">+ Upload Document</a>
-    <ul class="list-group">
-    {% for doc in documents %}
-        <li class="list-group-item bg-dark text-white">
-            {% if doc.is_redacted %}
-                <span class="badge bg-danger">[REDACTED]</span>
-            {% else %}
-                {{ doc.title }} ({{ doc.document_type }})
-            {% endif %}
-            <a href="{{ url_for('view_versions', doc_id=doc.id) }}" class="btn btn-sm btn-outline-info">Versions</a>
-            <a href="{{ url_for('new_version', doc_id=doc.id) }}" class="btn btn-sm btn-outline-warning">New Version</a>
-            <a href="{{ url_for('toggle_redact', doc_id=doc.id) }}" class="btn btn-sm btn-outline-danger">Toggle Redaction</a>
-        </li>
-    {% endfor %}
-    </ul>
-    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary mt-3">Back to Dashboard</a>
-</div>
-</body>
+{% if doc.is_redacted %}
+    <!-- REDACTED BADGE (CLICKABLE) -->
+    <span class="badge bg-danger p-2" 
+          style="cursor: pointer; user-select: none;" 
+          title="Click to reveal original name and versions"
+          onclick="toggleDocDetails({{ doc.id }})">
+        [REDACTED] 🔒 <small class="ms-1" style="font-size: 0.75rem;">(Click to view details)</small>
+    </span>
+
+    <!-- HIDDEN BY DEFAULT: REVEALED ONLY WHEN [REDACTED] IS CLICKED -->
+    <div id="redacted-details-{{ doc.id }}" class="mt-2 text-start p-2 bg-dark rounded border border-secondary d-none">
+        <p class="mb-1 text-success">
+            <strong>Original File Name:</strong> {{ doc.title }}
+        </p>
+        <p class="mb-1 text-warning">
+            <strong>Versions & Hashes:</strong>
+        </p>
+        {% if doc.versions %}
+            {% for v in doc.versions %}
+                <p class="mb-0 small text-light">
+                    Version {{ loop.index }}: <code class="text-info">{{ v.file_hash if v.file_hash else 'No Hash Available' }}</code>
+                </p>
+            {% endfor %}
+        {% else %}
+            <p class="mb-0 small text-muted">No version history found.</p>
+        {% endif %}
+    </div>
+{% else %}
+    <!-- NORMAL FILE NAME WHEN NOT REDACTED -->
+    <span>{{ doc.title }}</span>
+{% endif %}
+
+<script>
+function toggleDocDetails(docId) {
+    const detailsDiv = document.getElementById('redacted-details-' + docId);
+    if (detailsDiv) {
+        detailsDiv.classList.toggle('d-none');
+    }
+}
+</script>
