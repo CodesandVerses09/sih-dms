@@ -1,40 +1,66 @@
-{% if doc.is_redacted %}
-    <!-- REDACTED BADGE (CLICKABLE) -->
-    <span class="badge bg-danger p-2" 
-          style="cursor: pointer; user-select: none;" 
-          title="Click to reveal original name and versions"
-          onclick="toggleDocDetails({{ doc.id }})">
-        [REDACTED] 🔒 <small class="ms-1" style="font-size: 0.75rem;">(Click to view details)</small>
-    </span>
+{% extends "base.html" %}
 
-    <!-- HIDDEN BY DEFAULT: REVEALED ONLY WHEN [REDACTED] IS CLICKED -->
-    <div id="redacted-details-{{ doc.id }}" class="mt-2 text-start p-2 bg-dark rounded border border-secondary d-none">
-        <p class="mb-1 text-success">
-            <strong>Original File Name:</strong> {{ doc.title }}
-        </p>
-        <p class="mb-1 text-warning">
-            <strong>Versions & Hashes:</strong>
-        </p>
-        {% if doc.versions %}
-            {% for v in doc.versions %}
-                <p class="mb-0 small text-light">
-                    Version {{ loop.index }}: <code class="text-info">{{ v.file_hash if v.file_hash else 'No Hash Available' }}</code>
-                </p>
-            {% endfor %}
-        {% else %}
-            <p class="mb-0 small text-muted">No version history found.</p>
-        {% endif %}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-light mb-4">Case Details</h2>
+
+    <div class="mb-3">
+        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary btn-sm">← Back to Dashboard</a>
     </div>
-{% else %}
-    <!-- NORMAL FILE NAME WHEN NOT REDACTED -->
-    <span>{{ doc.title }}</span>
-{% endif %}
+
+    {% if case and case.documents %}
+        {% for doc in case.documents %}
+            <div class="card bg-dark text-white mb-3 p-3 border border-secondary">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        {% if doc.is_redacted %}
+                            <span class="badge bg-danger p-2" style="cursor: pointer;" onclick="toggleDocDetails('{{ doc.id }}')">
+                                [REDACTED] 🔒 <small class="text-light ms-1">(Click to view original name)</small>
+                            </span>
+                        {% else %}
+                            <span class="fs-5">{{ doc.title }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <button type="button" class="btn btn-outline-info btn-sm me-1" onclick="toggleDocDetails('{{ doc.id }}')">Versions</button>
+                        <a href="{{ url_for('toggle_redact', doc_id=doc.id) }}" class="btn btn-danger btn-sm">Toggle Redaction</a>
+                    </div>
+                </div>
+
+                <!-- Hidden panel for original file name and version hashes -->
+                <div id="details-{{ doc.id }}" class="mt-3 p-3 bg-secondary rounded d-none">
+                    <p class="mb-1 text-warning">
+                        <strong>Original File Name:</strong> <span class="text-white">{{ doc.title }}</span>
+                    </p>
+                    <p class="mb-1 text-warning">
+                        <strong>Versions & Hashes:</strong>
+                    </p>
+                    {% if doc.versions %}
+                        <ul class="list-group list-group-flush">
+                            {% for v in doc.versions %}
+                                <li class="list-group-item bg-dark text-light border-secondary p-1 small">
+                                    Version {{ loop.index }}: <code>{{ v.file_hash if v.file_hash else 'No Hash' }}</code>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="small text-light mb-0">No versions available.</p>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="alert alert-info">No documents found for this case.</div>
+    {% endif %}
+</div>
 
 <script>
 function toggleDocDetails(docId) {
-    const detailsDiv = document.getElementById('redacted-details-' + docId);
-    if (detailsDiv) {
-        detailsDiv.classList.toggle('d-none');
+    const el = document.getElementById('details-' + docId);
+    if (el) {
+        el.classList.toggle('d-none');
     }
 }
 </script>
+{% endblock %}
